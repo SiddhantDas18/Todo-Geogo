@@ -12,7 +12,6 @@ export default function CreateTodo({ isOpen, onClose }: { isOpen: boolean, onClo
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Add your todo creation logic here
         console.log(formData);
         onClose();
     };
