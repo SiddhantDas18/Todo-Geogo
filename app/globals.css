@@ -9,6 +9,9 @@
   .butn{
     @apply bg-black text-white px-1 py-1 rounded-md
   }
+  .inpt-styling{
+    @apply border-black border-1 rounded-md py-2 px-2
+  }
 }
 
 
