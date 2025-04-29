@@ -7,9 +7,6 @@ export async function POST(req: NextRequest) {
     try {
 
         const response = await req.json()
-        console.log(response)
-        console.log(response.username)
-        console.log(response.password)
         
         const hashedPaasword = await bcrypt.hash(response.password,10)
 

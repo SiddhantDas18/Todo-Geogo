@@ -1,5 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import bcrypt from 'bcrypt'
+import prismaClient from "@/app/lib/db";
 
 
 export async function POST(req: NextRequest) {
@@ -7,11 +8,33 @@ export async function POST(req: NextRequest) {
 
         const data = await req.json()
 
-        return NextResponse.json({
-            msg: "Messege from server",
-            username: data.username,
-            password: data.password
+        const response = await prismaClient.user.findUnique({
+            where: {
+                username: data.username
+            }
         })
+
+        if (!response) {
+            return NextResponse.json({
+                message: "User not found"
+            })
+        }
+
+
+        const hashedPassword = response?.password
+        const checkPassowrd = await bcrypt.compare(data.password, hashedPassword)
+
+        if (checkPassowrd) {
+            return NextResponse.json({
+                msg: "Signed In",
+            })
+        } else {
+            return NextResponse.json({
+                msg: "Wrong password",
+            })
+        }
+
+
 
     } catch (e) {
         return NextResponse.json({
