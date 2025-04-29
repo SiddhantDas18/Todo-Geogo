@@ -13,11 +13,14 @@ export default function SignIn(){
         if(username =="" || password==""){
             alert("Invalid Input")
         }else{
-            axios.post("/api/signin",{
+            const response = await axios.post("/api/signin", {
                 username,
                 password
-            })
-            .then
+            });
+
+            const data = response.data;
+
+            localStorage.setItem('token',data.token)
             console.log(`username:${username} password:${password}`)
         }
     }
