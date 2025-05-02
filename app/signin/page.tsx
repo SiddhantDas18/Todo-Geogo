@@ -1,35 +1,34 @@
 'use client'
 import { useState } from "react"
 import axios from "axios"
-import { redirect } from "next/navigation"
-
+import { useRouter } from "next/navigation"
 
 export default function SignIn() {
-
+    const router = useRouter();
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
-
 
     async function getData() {
         if (username == "" || password == "") {
             alert("Invalid Input")
         } else {
-            const response = await axios.post("/api/signin", {
-                username,
-                password
-            });
+            try {
+                const response = await axios.post("/api/signin", {
+                    username,
+                    password
+                });
 
-            const data = response.data;
-            if (!response.data.token) {
-                alert(response.data.msg)
-            } else {
-
-                localStorage.setItem('token', data.token)
-                console.log(`username:${username} password:${password}`)
-                redirect("/dashboard")
+                const data = response.data;
+                if (!response.data.token) {
+                    alert(response.data.msg)
+                } else {
+                    localStorage.setItem('token', data.token)
+                    router.push("/")
+                    router.refresh() // Force a refresh to update the state
+                }
+            } catch (error) {
+                alert("An error occurred during sign in")
             }
-
-
         }
     }
 

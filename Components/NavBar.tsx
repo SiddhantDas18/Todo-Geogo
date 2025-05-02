@@ -5,6 +5,15 @@ import { useState, useEffect } from 'react';
 export default function Navbar() {
     const [authentication, setAuthentication] = useState(false)
 
+    function Logout(){
+        localStorage.removeItem("token")
+        setAuthentication(false)
+        window.location.href = "/"  // Force a page reload to clear state
+    }
+
+    
+
+
     useEffect(() => {
         const token = localStorage.getItem("token")
         if (token) {
@@ -12,7 +21,7 @@ export default function Navbar() {
         } else {
             setAuthentication(false)
         }
-    }, []) // Empty dependency array means this runs once on mount
+    }, [])  // Only run once on mount
 
     return <div className="sticky top-0 border border-black py-3 rounded-md">
         <div className="flex justify-between px-2 items-center">
@@ -31,8 +40,8 @@ export default function Navbar() {
                         </div>
                     </>
                 ) : (
-                    <div className="butn md:text-2xl">
-                        <Link href="https://github.com/siddhantdas18" target='blank'>Github</Link>
+                    <div>
+                        <button className="butn md:text-2xl" onClick={Logout}>Logout</button>
                     </div>
                 )}
             </div>

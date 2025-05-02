@@ -1,20 +1,45 @@
 'use client'
 import { useState } from 'react'
+import axios from 'axios';
 
 interface TodoFormData {
     title: string;
 }
 
-export default function CreateTodo({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
+interface TodoProps{
+    isOpen:boolean,
+    onClose:()=>void
+}
+
+export default  function CreateTodo({ isOpen, onClose }: TodoProps) {
     const [formData, setFormData] = useState<TodoFormData>({
         title: ''
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log(formData);
-        onClose();
+        const value = formData.title;
+        const token = localStorage.getItem('token');
+
+        try {
+            const response = await axios.post("api/addtodo", {
+                value
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const data = response.data;
+            console.log(data.msg);
+            console.log(data.msg1);
+            setFormData({ title: '' });
+            onClose();
+        } catch (error) {
+            console.log("Error during signin");
+        }
     };
+
 
     if (!isOpen) return null;
 
@@ -40,7 +65,7 @@ export default function CreateTodo({ isOpen, onClose }: { isOpen: boolean, onClo
                         </label>
                         <input
                             type="text"
-                            value={formData.title}
+                            //value={formData.title}
                             onChange={(e) => setFormData({...formData, title: e.target.value})}
                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black mx-2 my-2"
                             placeholder="Enter todo title"
