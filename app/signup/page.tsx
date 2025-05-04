@@ -18,7 +18,7 @@ export default function SignUp(){
                 password
             })
             .then
-            console.log(`username:${username} password:${password}`)
+            
         }
     }
 

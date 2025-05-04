@@ -23,7 +23,7 @@ export default  function CreateTodo({ isOpen, onClose, onAddTodo }: TodoProps) {
         const token = localStorage.getItem('token');
 
         try {
-            const response = await axios.post("api/addtodo", {
+            const response = await axios.post("/api/addtodo", {
                 value
             }, {
                 headers: {
