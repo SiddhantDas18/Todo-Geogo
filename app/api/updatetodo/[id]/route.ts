@@ -16,11 +16,10 @@ export async function PATCH(
         const { userId } = await authResponse.json();
         const { status } = await req.json();
 
-        // Update the todo status
         const updatedTodo = await prismaClient.todo.update({
             where: {
                 id: parseInt(params.id),
-                userId: userId 
+                userId: userId
             },
             data: {
                 todo_status: status

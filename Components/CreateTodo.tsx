@@ -36,10 +36,9 @@ export default  function CreateTodo({ isOpen, onClose, onAddTodo }: TodoProps) {
             setFormData({ title: '' });
             onClose();
         } catch (error) {
-            console.log("Error during signin");
+            alert("Error creating todo");
         }
     };
-
 
     if (!isOpen) return null;
 
@@ -57,8 +56,6 @@ export default  function CreateTodo({ isOpen, onClose, onAddTodo }: TodoProps) {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    
-
                     <div>
                         <label className="block text-sm font-medium text-gray-700">
                             Todo Title

@@ -8,11 +8,8 @@ export default function Navbar() {
     function Logout(){
         localStorage.removeItem("token")
         setAuthentication(false)
-        window.location.href = "/"  // Force a page reload to clear state
+        window.location.href = "/"
     }
-
-    
-
 
     useEffect(() => {
         const token = localStorage.getItem("token")
@@ -21,9 +18,9 @@ export default function Navbar() {
         } else {
             setAuthentication(false)
         }
-    }, [])  // Only run once on mount
+    }, [])
 
-    return <div className="sticky top-0 border border-black py-3 rounded-md backdrop-blur-sm">
+    return <div className="sticky top-0 border border-black py-3 rounded-md">
         <div className="flex justify-between px-2 items-center">
             <div className="text-2xl md:text-3xl md:font-bold">
                 <Link href="/">Todo</Link>

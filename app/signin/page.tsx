@@ -24,7 +24,7 @@ export default function SignIn() {
                 } else {
                     localStorage.setItem('token', data.token)
                     router.push("/")
-                    router.refresh() // Force a refresh to update the state
+                    router.refresh()
                 }
             } catch (error) {
                 alert("An error occurred during sign in")
