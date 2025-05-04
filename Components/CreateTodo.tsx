@@ -8,10 +8,11 @@ interface TodoFormData {
 
 interface TodoProps{
     isOpen:boolean,
-    onClose:()=>void
+    onClose:()=>void,
+    onAddTodo:(todo: any) => void
 }
 
-export default  function CreateTodo({ isOpen, onClose }: TodoProps) {
+export default  function CreateTodo({ isOpen, onClose, onAddTodo }: TodoProps) {
     const [formData, setFormData] = useState<TodoFormData>({
         title: ''
     });
@@ -31,8 +32,7 @@ export default  function CreateTodo({ isOpen, onClose }: TodoProps) {
             });
 
             const data = response.data;
-            console.log(data.msg);
-            console.log(data.msg1);
+            onAddTodo(data.todo);
             setFormData({ title: '' });
             onClose();
         } catch (error) {
@@ -65,9 +65,8 @@ export default  function CreateTodo({ isOpen, onClose }: TodoProps) {
                         </label>
                         <input
                             type="text"
-                            //value={formData.title}
                             onChange={(e) => setFormData({...formData, title: e.target.value})}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black mx-2 my-2"
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black mx-2 my-2 p-3"
                             placeholder="Enter todo title"
                             required
                         />
@@ -81,9 +80,10 @@ export default  function CreateTodo({ isOpen, onClose }: TodoProps) {
                         >
                             Cancel
                         </button>
+                        
                         <button
                             type="submit"
-                            className="px-4 py-2  text-sm font-medium text-white bg-black rounded-md hover:bg-blue-700"
+                            className="px-4 py-2  text-sm font-medium text-white bg-black rounded-md hover:bg-slate-700"
                         >
                             Create Todo
                         </button>
