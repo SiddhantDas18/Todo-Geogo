@@ -28,7 +28,7 @@ export async function DELETE(
             message: "Todo deleted successfully"
         });
 
-    } catch (error) {
+    } catch {
         return NextResponse.json(
             { error: "Failed to delete todo" },
             { status: 500 }

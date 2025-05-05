@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
         const hashedPaasword = await bcrypt.hash(response.password,10)
 
 
-        const sendData = await prismaClient.user.create({
+        await prismaClient.user.create({
             data:{
                 username:response.username,
                 password:hashedPaasword

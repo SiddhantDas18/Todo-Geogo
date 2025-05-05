@@ -27,7 +27,7 @@ export default function SignIn() {
                     router.refresh()
                 }
             } catch (error) {
-                alert("An error occurred during sign in")
+                alert(error as Error)
             }
         }
     }

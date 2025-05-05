@@ -33,7 +33,7 @@ export async function PATCH(
 
     } catch (error) {
         return NextResponse.json(
-            { error: "Failed to update todo" },
+            { error: `(e as Error)` },
             { status: 500 }
         );
     }

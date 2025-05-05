@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { motion } from 'framer-motion'
 import Todos from "@/Components/Todos";
 import axios from 'axios'
-import { todo } from "node:test";
 
 interface Todo {
     id: number;
