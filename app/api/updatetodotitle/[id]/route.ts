@@ -66,7 +66,7 @@ export async function PATCH(
             todo: updatedTodo
         });
 
-    } catch (e) {
+    } catch {
         return NextResponse.json(
             { error: "Failed to update todo" },
             { status: 500 }

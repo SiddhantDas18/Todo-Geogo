@@ -2,15 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import Middleware from "@/middleware/route";
 import prismaClient from "@/app/lib/db";
 
-type Props = {
-    params: {
-        id: string;
-    };
-};
 
 export async function DELETE(
     request: NextRequest,
-    { params }: Props
+    { params }: { params: { id: string } }
 ) {
     try {
         const authResponse = await Middleware(request);
@@ -24,6 +19,7 @@ export async function DELETE(
             return NextResponse.json({ error: 'User ID not found' }, { status: 401 });
         }
 
+
         const { id } = await params;
         const todoId = parseInt(id, 10);
 
@@ -34,7 +30,6 @@ export async function DELETE(
             );
         }
 
-        // First check if the todo belongs to the user
         const todo = await prismaClient.todo.findFirst({
             where: {
                 id: todoId,
@@ -61,7 +56,7 @@ export async function DELETE(
             message: "Todo deleted successfully"
         });
 
-    } catch (e) {
+    } catch {
         return NextResponse.json(
             { error: "Failed to delete todo" },
             { status: 500 }

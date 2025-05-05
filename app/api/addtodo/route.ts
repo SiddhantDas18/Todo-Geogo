@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
             success: true,
             todo
         });
-    } catch (e) {
+    } catch {
         return NextResponse.json(
             { error: "Failed to create todo" },
             { status: 500 }
