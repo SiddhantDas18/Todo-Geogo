@@ -2,9 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import Middleware from "@/middleware/route";
 import prismaClient from "@/app/lib/db";
 
+type Props = {
+    params: {
+        id: string;
+    };
+};
+
 export async function PATCH(
     request: NextRequest,
-    context: { params: { id: string } }
+    { params }: Props
 ) {
     try {
         const authResponse = await Middleware(request);
@@ -15,8 +21,7 @@ export async function PATCH(
 
         const { userId } = await authResponse.json();
         const { status } = await request.json();
-        
-        const {id} = await context.params
+        const { id } = await params;
         const todoId = parseInt(id, 10);
 
         if (isNaN(todoId)) {

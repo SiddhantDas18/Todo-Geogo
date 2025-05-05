@@ -9,10 +9,11 @@ interface TodoFormData {
 interface TodoProps{
     isOpen:boolean,
     onClose:()=>void,
-    onAddTodo:(todo: any) => void
+    onAddTodo:(todo: any) => void,
+    name:String
 }
 
-export default  function CreateTodo({ isOpen, onClose, onAddTodo }: TodoProps) {
+export default  function CreateTodo({ isOpen, onClose, onAddTodo,name }: TodoProps) {
     const [formData, setFormData] = useState<TodoFormData>({
         title: ''
     });
@@ -82,7 +83,7 @@ export default  function CreateTodo({ isOpen, onClose, onAddTodo }: TodoProps) {
                             type="submit"
                             className="px-4 py-2  text-sm font-medium text-white bg-black rounded-md hover:bg-slate-700"
                         >
-                            Create Todo
+                            {name}
                         </button>
                     </div>
                 </form>

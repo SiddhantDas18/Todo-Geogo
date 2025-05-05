@@ -8,7 +8,7 @@ type Props = {
     };
 };
 
-export async function DELETE(
+export async function PATCH(
     request: NextRequest,
     { params }: Props
 ) {
@@ -20,7 +20,8 @@ export async function DELETE(
         }
 
         const { userId } = await authResponse.json();
-        const { id } = await params;
+        const { title } = await request.json();
+        const { id } = params;
         const todoId = parseInt(id, 10);
 
         if (isNaN(todoId)) {
@@ -30,22 +31,25 @@ export async function DELETE(
             );
         }
 
-        await prismaClient.todo.delete({
+        const updatedTodo = await prismaClient.todo.update({
             where: {
                 id: todoId,
                 userId: userId
+            },
+            data: {
+                todo_title: title
             }
         });
 
         return NextResponse.json({
             success: true,
-            message: "Todo deleted successfully"
+            todo: updatedTodo
         });
 
     } catch {
         return NextResponse.json(
-            { error: "Failed to delete todo" },
+            { error: "Failed to update todo title" },
             { status: 500 }
         );
     }
-}
+} 
