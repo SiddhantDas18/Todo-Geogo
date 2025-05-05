@@ -24,8 +24,8 @@ export async function PATCH(
             return NextResponse.json({ error: 'User ID not found' }, { status: 401 });
         }
 
-        const { title } = await request.json();
-        const { id } = params;
+        const { title, status } = await request.json();
+        const { id } = await params;
         const todoId = parseInt(id, 10);
 
         if (isNaN(todoId)) {
@@ -56,7 +56,8 @@ export async function PATCH(
                 userId: parseInt(userId)
             },
             data: {
-                todo_title: title
+                todo_title: title,
+                todo_status: status
             }
         });
 
@@ -67,7 +68,7 @@ export async function PATCH(
 
     } catch (e) {
         return NextResponse.json(
-            { error: "Failed to update todo title" },
+            { error: "Failed to update todo" },
             { status: 500 }
         );
     }

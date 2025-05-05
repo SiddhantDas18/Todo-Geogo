@@ -9,18 +9,17 @@ import axios from 'axios'
 interface Todo {
     id: number;
     todo_title: string;
-    todo_status: boolean;
-    userid: number
+    todo_status: string;
+    userId: number;
 }
 
 export default function Home() {
     const router = useRouter();
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [open, setOpen] = useState(false);
     const [todos, setTodos] = useState<Todo[]>([]);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-    const handleStatusChange = (id: number, newStatus: boolean) => {
+    const handleStatusChange = (id: number, newStatus: string) => {
         setTodos(prevTodos => 
             prevTodos.map(todo => 
                 todo.id === id ? { ...todo, todo_status: newStatus } : todo
@@ -36,88 +35,137 @@ export default function Home() {
         setTodos(prevTodos => [...prevTodos, newTodo]);
     };
 
-    const handleUpdateTitle = (id: number, newTitle: string) => {
+    const handleUpdateTitle = (id: number, newTitle: string, newStatus: string) => {
         setTodos(prevTodos =>
             prevTodos.map(todo =>
-                todo.id === id ? { ...todo, todo_title: newTitle } : todo
+                todo.id === id ? { ...todo, todo_title: newTitle, todo_status: newStatus } : todo
             )
         );
     };
 
     useEffect(() => {
-        const fetchTodos = async () => {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                router.push("/signin");
-            } else {
-                setIsAuthenticated(true);
+        const token = localStorage.getItem("token");
+        if (!token) {
+            router.push("/login");
+            return;
+        }
 
-                try {
-                    const response = await axios.get("api/gettodo", {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
+        const fetchTodos = async () => {
+            try {
+                const response = await axios.get("/api/gettodo", {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.data.success && response.data.todo) {
                     setTodos(response.data.todo);
-                } catch (error) {
-                    console.error("Error fetching todos:", error);
                 }
+            } catch (error) {
+                console.error("Error fetching todos:", error);
+                if (axios.isAxiosError(error) && error.response?.status === 401) {
+                    router.push("/login");
+                }
+            } finally {
+                setIsLoading(false);
             }
-            setIsLoading(false);
         };
 
         fetchTodos();
-        
-        const intervalId = setInterval(fetchTodos, 10000);
-        
-        return () => clearInterval(intervalId);
     }, [router]);
 
     if (isLoading) {
-        return <div className="flex justify-center items-center h-screen">Loading...</div>;
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+        );
     }
 
-    if (!isAuthenticated) {
-        return null;
-    }
+    const pendingTodos = todos.filter(todo => todo.todo_status === "pending");
+    const completedTodos = todos.filter(todo => todo.todo_status === "true");
+    const notStartedTodos = todos.filter(todo => todo.todo_status === "false");
 
     return (
-        <>
-            <div className="p-4">
-                <div className="flex justify-between items-center mb-6">
-                    <motion.div
-                        whileHover={{ scale: 1.08 }}>
-                        <button
-                            onClick={() => setOpen(true)}
-                            className="px-4 py-2 bg-black text-white rounded-md "
-                        >
-                            Add Todo
-                        </button>
-                    </motion.div>
-                </div>
+        <main className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto">
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-8"
+                >
+                    <button
+                        onClick={() => setIsCreateModalOpen(true)}
+                        className="px-4 py-2 bg-black text-white rounded hover:bg-slate-600"
+                    >
+                        Add Todo
+                    </button>
+                    <CreateTodo
+                        isOpen={isCreateModalOpen}
+                        onClose={() => setIsCreateModalOpen(false)}
+                        onAddTodo={handleAddTodo}
+                        name="Add Todo"
+                    />
+                </motion.div>
 
-                <CreateTodo
-                    isOpen={open}
-                    onClose={() => setOpen(false)}
-                    onAddTodo={handleAddTodo}
-                    name={"Add Todo"}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* section for the todo which are not started*/}
+                    <div className="bg-white rounded-lg shadow-md p-4">
+                        <h2 className="text-xl font-semibold text-gray-800 mb-4">Need to be done</h2>
+                        <div className="space-y-2">
+                            {notStartedTodos.map((todo) => (
+                                <Todos
+                                    key={todo.id}
+                                    todoTitle={todo.todo_title}
+                                    todoStatus={todo.todo_status}
+                                    todoId={todo.id}
+                                    userid={todo.userId}
+                                    onStatusChange={handleStatusChange}
+                                    onDelete={handleDelete}
+                                    onUpdateTitle={handleUpdateTitle}
+                                />
+                            ))}
+                        </div>
+                    </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {todos.map((todo) => (
-                        <Todos
-                            key={todo.id}
-                            todoTitle={todo.todo_title}
-                            todoStatus={todo.todo_status}
-                            todoId={todo.id}
-                            userid={todo.userid}
-                            onStatusChange={handleStatusChange}
-                            onDelete={handleDelete}
-                            onUpdateTitle={handleUpdateTitle}
-                        />
-                    ))}
+                    {/* Has started */}
+                    <div className="bg-white rounded-lg shadow-md p-4">
+                        <h2 className="text-xl font-semibold text-gray-800 mb-4">Doing</h2>
+                        <div className="space-y-2">
+                            {pendingTodos.map((todo) => (
+                                <Todos
+                                    key={todo.id}
+                                    todoTitle={todo.todo_title}
+                                    todoStatus={todo.todo_status}
+                                    todoId={todo.id}
+                                    userid={todo.userId}
+                                    onStatusChange={handleStatusChange}
+                                    onDelete={handleDelete}
+                                    onUpdateTitle={handleUpdateTitle}
+                                />
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Done */}
+                    <div className="bg-white rounded-lg shadow-md p-4">
+                        <h2 className="text-xl font-semibold text-gray-800 mb-4">Done</h2>
+                        <div className="space-y-2">
+                            {completedTodos.map((todo) => (
+                                <Todos
+                                    key={todo.id}
+                                    todoTitle={todo.todo_title}
+                                    todoStatus={todo.todo_status}
+                                    todoId={todo.id}
+                                    userid={todo.userId}
+                                    onStatusChange={handleStatusChange}
+                                    onDelete={handleDelete}
+                                    onUpdateTitle={handleUpdateTitle}
+                                />
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
-        </>
+        </main>
     );
 }

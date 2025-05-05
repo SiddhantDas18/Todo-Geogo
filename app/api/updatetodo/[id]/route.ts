@@ -56,7 +56,7 @@ export async function PATCH(
                 userId: parseInt(userId)
             },
             data: {
-                todo_status: status
+                todo_status: status.toString()
             }
         });
 

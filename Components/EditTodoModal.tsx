@@ -7,11 +7,13 @@ interface EditTodoModalProps {
     onClose: () => void;
     todoId: number;
     currentTitle: string;
-    onUpdate: (id: number, newTitle: string) => void;
+    currentStatus: string;
+    onUpdate: (id: number, newTitle: string, newStatus: string) => void;
 }
 
-export default function EditTodoModal({ isOpen, onClose, todoId, currentTitle, onUpdate }: EditTodoModalProps) {
+export default function EditTodoModal({ isOpen, onClose, todoId, currentTitle, currentStatus, onUpdate }: EditTodoModalProps) {
     const [title, setTitle] = useState(currentTitle);
+    const [status, setStatus] = useState(currentStatus);
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -25,7 +27,8 @@ export default function EditTodoModal({ isOpen, onClose, todoId, currentTitle, o
             }
 
             const response = await axios.patch(`/api/updatetodotitle/${todoId}`, {
-                title
+                title,
+                status
             }, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -33,12 +36,12 @@ export default function EditTodoModal({ isOpen, onClose, todoId, currentTitle, o
             });
 
             if (response.data.success) {
-                onUpdate(todoId, title);
+                onUpdate(todoId, title, status);
                 onClose();
             }
         } catch (error) {
             console.error('Failed to update todo:', error);
-            alert('Failed to update todo title. Please try again.');
+            alert('Failed to update todo. Please try again.');
         } finally {
             setIsLoading(false);
         }
@@ -51,7 +54,7 @@ export default function EditTodoModal({ isOpen, onClose, todoId, currentTitle, o
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 bg-white/20 backdrop-blur-sm  flex items-center justify-center z-50"
+                    className="fixed inset-0 bg-white/20 backdrop-blur-sm flex items-center justify-center z-50"
                     onClick={onClose}
                 >
                     <motion.div
@@ -62,15 +65,36 @@ export default function EditTodoModal({ isOpen, onClose, todoId, currentTitle, o
                         onClick={e => e.stopPropagation()}
                     >
                         <h2 className="text-xl font-semibold mb-4">Edit Todo</h2>
-                        <form onSubmit={handleSubmit}>
-                            <input
-                                type="text"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                className="w-full p-2 border rounded mb-4"
-                                placeholder="Enter new title"
-                                required
-                            />
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Todo Title
+                                </label>
+                                <input
+                                    type="text"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black p-3"
+                                    placeholder="Enter new title"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Status
+                                </label>
+                                <select
+                                    value={status}
+                                    onChange={(e) => setStatus(e.target.value)}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black p-3"
+                                >
+                                    <option value="false">Need to be done</option>
+                                    <option value="pending">Doing</option>
+                                    <option value="true">Done</option>
+                                </select>
+                            </div>
+
                             <div className="flex justify-end gap-2">
                                 <button
                                     type="button"

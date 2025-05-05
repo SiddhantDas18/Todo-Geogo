@@ -15,11 +15,12 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'User ID not found' }, { status: 401 });
         }
 
-        const { value } = await req.json();
+        const { value, status = "false" } = await req.json();
 
         const todo = await prismaClient.todo.create({
             data: {
                 todo_title: value,
+                todo_status: status,
                 userId: parseInt(userId)
             }
         });

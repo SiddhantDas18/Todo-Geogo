@@ -4,6 +4,7 @@ import axios from 'axios';
 
 interface TodoFormData {
     title: string;
+    status: string;
 }
 
 interface TodoProps{
@@ -13,19 +14,22 @@ interface TodoProps{
     name:String
 }
 
-export default  function CreateTodo({ isOpen, onClose, onAddTodo,name }: TodoProps) {
+export default function CreateTodo({ isOpen, onClose, onAddTodo, name }: TodoProps) {
     const [formData, setFormData] = useState<TodoFormData>({
-        title: ''
+        title: '',
+        status: 'false' // default status
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const value = formData.title;
+        const status = formData.status;
         const token = localStorage.getItem('token');
 
         try {
             const response = await axios.post("/api/addtodo", {
-                value
+                value,
+                status
             }, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -34,7 +38,7 @@ export default  function CreateTodo({ isOpen, onClose, onAddTodo,name }: TodoPro
 
             const data = response.data;
             onAddTodo(data.todo);
-            setFormData({ title: '' });
+            setFormData({ title: '', status: 'false' });
             onClose();
         } catch (error) {
             alert("Error creating todo");
@@ -63,6 +67,7 @@ export default  function CreateTodo({ isOpen, onClose, onAddTodo,name }: TodoPro
                         </label>
                         <input
                             type="text"
+                            value={formData.title}
                             onChange={(e) => setFormData({...formData, title: e.target.value})}
                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black mx-2 my-2 p-3"
                             placeholder="Enter todo title"
@@ -70,20 +75,34 @@ export default  function CreateTodo({ isOpen, onClose, onAddTodo,name }: TodoPro
                         />
                     </div>
 
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                            Status
+                        </label>
+                        <select
+                            value={formData.status}
+                            onChange={(e) => setFormData({...formData, status: e.target.value})}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black mx-2 my-2 p-3"
+                        >
+                            <option value="false">Need to be done</option>
+                            <option value="pending">Doing</option>
+                            <option value="true">Done</option>
+                        </select>
+                    </div>
+
                     <div className="flex justify-end gap-2">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2  text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
                         >
                             Cancel
                         </button>
-                        
                         <button
                             type="submit"
-                            className="px-4 py-2  text-sm font-medium text-white bg-black rounded-md hover:bg-slate-700"
+                            className="px-4 py-2 bg-black text-white rounded hover:bg-slate-600"
                         >
-                            {name}
+                            Create
                         </button>
                     </div>
                 </form>

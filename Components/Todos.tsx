@@ -6,38 +6,17 @@ import EditTodoModal from './EditTodoModal'
 
 interface InputProps {
     todoTitle: string,
-    todoStatus: boolean,
+    todoStatus: string,
     todoId: number,
     userid: number,
-    onStatusChange: (id: number, newStatus: boolean) => void,
+    onStatusChange: (id: number, newStatus: string) => void,
     onDelete: (id: number) => void,
-    onUpdateTitle: (id: number, newTitle: string) => void
+    onUpdateTitle: (id: number, newTitle: string, newStatus: string) => void
 }
 
 export default function Todos({ todoTitle, todoStatus, todoId, userid, onStatusChange, onDelete, onUpdateTitle }: InputProps) {
-    const [isChecked, setIsChecked] = useState(todoStatus)
     const [isDeleting, setIsDeleting] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-
-    async function handleCheck() {
-        try {
-            const token = localStorage.getItem('token');
-            const newStatus = !isChecked;
-            
-            await axios.patch(`/api/updatetodo/${todoId}`, {
-                status: newStatus
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            
-            setIsChecked(newStatus);
-            onStatusChange(todoId, newStatus);
-        } catch (error) {
-            console.error('Error updating todo status:', error);
-        }
-    }
 
     async function handleDelete() {
         if (isDeleting) return;
@@ -65,23 +44,15 @@ export default function Todos({ todoTitle, todoStatus, todoId, userid, onStatusC
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className={`p-4 m-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 
-                          w-full sm:w-64 md:w-72 lg:w-80 ${
-                            isChecked ? 'bg-green-50' : 'bg-white'
+                          w-full ${
+                            todoStatus === "true" ? 'bg-green-50' : 
+                            todoStatus === "pending" ? 'bg-yellow-50' : 'bg-white'
                           }`}
             >
                 <div className="flex items-center justify-between space-x-4">
                     <div className="flex items-center space-x-3 flex-1">
-                        <input
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={handleCheck}
-                            className="w-5 h-5 rounded-full border-2 border-gray-300 
-                                     checked:bg-blue-500 checked:border-blue-500 
-                                     appearance-none cursor-pointer transition-colors 
-                                     duration-200 hover:border-blue-400"
-                        />
                         <h3 className={`text-lg font-medium break-words flex-1
-                                    ${isChecked ? 'text-gray-400 line-through' : 'text-gray-700'}`}>
+                                    ${todoStatus === "true" ? 'text-gray-400 line-through' : 'text-gray-700'}`}>
                             {todoTitle}
                         </h3>
                     </div>
@@ -135,6 +106,7 @@ export default function Todos({ todoTitle, todoStatus, todoId, userid, onStatusC
                 onClose={() => setIsEditModalOpen(false)}
                 todoId={todoId}
                 currentTitle={todoTitle}
+                currentStatus={todoStatus}
                 onUpdate={onUpdateTitle}
             />
         </>
