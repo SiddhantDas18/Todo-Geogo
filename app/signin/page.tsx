@@ -23,8 +23,9 @@ export default function SignIn() {
                     alert(response.data.msg)
                 } else {
                     localStorage.setItem('token', data.token)
+                    // Dispatch auth change event
+                    window.dispatchEvent(new Event('authStateChange'));
                     router.push("/")
-                    router.refresh()
                 }
             } catch (error) {
                 alert(error as Error)
