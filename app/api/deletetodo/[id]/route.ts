@@ -22,31 +22,31 @@ export async function DELETE(
   request: NextRequest
 ) {
   try {
-    // Get todo ID from URL
+
     const id = request.nextUrl.pathname.split('/').pop();
     if (!id) {
       return createErrorResponse("Todo ID is required", 400);
     }
 
-    // Validate authentication
+
     const authResponse = await Middleware(request);
     if (authResponse.status === 401) {
       return authResponse;
     }
 
-    // Get and validate user ID
-    const { userId } = await authResponse.json();
+
+    const userId = authResponse.headers.get('x-user-id');
     if (!userId) {
       return createErrorResponse("User ID not found", 401);
     }
 
-    // Validate todo ID
+
     const todoId = Number(id);
     if (isNaN(todoId)) {
       return createErrorResponse("Invalid todo ID format", 400);
     }
 
-    // Check if todo exists and belongs to user
+
     const existingTodo = await prismaClient.todo.findFirst({
       where: {
         id: todoId,
@@ -61,10 +61,11 @@ export async function DELETE(
       return createErrorResponse("Todo not found or unauthorized", 404);
     }
 
-    // Delete the todo
+
     await prismaClient.todo.delete({
       where: {
         id: todoId,
+        userId: Number(userId), 
       },
     });
 
