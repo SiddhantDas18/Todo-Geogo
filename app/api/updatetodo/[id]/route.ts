@@ -3,22 +3,32 @@ import Middleware from "@/middleware/route";
 import prismaClient from "@/app/lib/db";
 
 export async function PATCH(
-    req: NextRequest,
-    { params }: { params: { id: string } }
+    request: NextRequest,
+    context: { params: { id: string } }
 ) {
     try {
-        const authResponse = await Middleware(req);
+        const authResponse = await Middleware(request);
 
         if (authResponse.status === 401) {
             return authResponse;
         }
 
         const { userId } = await authResponse.json();
-        const { status } = await req.json();
+        const { status } = await request.json();
+        
+        const {id} = await context.params
+        const todoId = parseInt(id, 10);
+
+        if (isNaN(todoId)) {
+            return NextResponse.json(
+                { error: "Invalid todo ID" },
+                { status: 400 }
+            );
+        }
 
         const updatedTodo = await prismaClient.todo.update({
             where: {
-                id: parseInt(params.id),
+                id: todoId,
                 userId: userId
             },
             data: {
@@ -31,10 +41,10 @@ export async function PATCH(
             todo: updatedTodo
         });
 
-    } catch  {
+    } catch {
         return NextResponse.json(
             { error: "Failed to update todo" },
             { status: 500 }
         );
     }
-} 
+}

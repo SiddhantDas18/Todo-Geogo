@@ -4,7 +4,7 @@ import prismaClient from "@/app/lib/db";
 
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    context: { params: { id: string } }
 ) {
     try {
         const authResponse = await Middleware(req);
@@ -15,11 +15,12 @@ export async function DELETE(
 
         const { userId } = await authResponse.json();
 
-        // Delete the todo
+        const {id} = await context.params
+        const todoId = parseInt(id,10)
         await prismaClient.todo.delete({
             where: {
-                id: parseInt(params.id),
-                userId: userId // Ensure the todo belongs to the user
+                id: todoId,
+                userId: userId 
             }
         });
 
