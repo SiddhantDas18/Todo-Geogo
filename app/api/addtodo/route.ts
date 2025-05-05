@@ -4,25 +4,23 @@ import Middleware from "@/middleware/route";
 
 export async function POST(req: NextRequest) {
     try {
-
         const authResponse = await Middleware(req);
-        
 
         if (authResponse.status === 401) {
             return authResponse;
         }
 
-
-        const { userId } = await authResponse.json();
-        
+        const userId = authResponse.headers.get('x-user-id');
+        if (!userId) {
+            return NextResponse.json({ error: 'User ID not found' }, { status: 401 });
+        }
 
         const { value } = await req.json();
-
 
         const todo = await prismaClient.todo.create({
             data: {
                 todo_title: value,
-                userId: userId
+                userId: parseInt(userId)
             }
         });
 
@@ -30,7 +28,7 @@ export async function POST(req: NextRequest) {
             success: true,
             todo
         });
-    } catch {
+    } catch (e) {
         return NextResponse.json(
             { error: "Failed to create todo" },
             { status: 500 }

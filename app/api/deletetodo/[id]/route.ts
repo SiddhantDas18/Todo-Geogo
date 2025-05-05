@@ -19,7 +19,11 @@ export async function DELETE(
             return authResponse;
         }
 
-        const { userId } = await authResponse.json();
+        const userId = authResponse.headers.get('x-user-id');
+        if (!userId) {
+            return NextResponse.json({ error: 'User ID not found' }, { status: 401 });
+        }
+
         const { id } = await params;
         const todoId = parseInt(id, 10);
 
@@ -30,10 +34,25 @@ export async function DELETE(
             );
         }
 
+        // First check if the todo belongs to the user
+        const todo = await prismaClient.todo.findFirst({
+            where: {
+                id: todoId,
+                userId: parseInt(userId)
+            }
+        });
+
+        if (!todo) {
+            return NextResponse.json(
+                { error: "Todo not found or unauthorized" },
+                { status: 404 }
+            );
+        }
+
         await prismaClient.todo.delete({
             where: {
                 id: todoId,
-                userId: userId
+                userId: parseInt(userId)
             }
         });
 
@@ -42,7 +61,7 @@ export async function DELETE(
             message: "Todo deleted successfully"
         });
 
-    } catch {
+    } catch (e) {
         return NextResponse.json(
             { error: "Failed to delete todo" },
             { status: 500 }

@@ -19,9 +19,13 @@ export async function PATCH(
             return authResponse;
         }
 
-        const { userId } = await authResponse.json();
+        const userId = authResponse.headers.get('x-user-id');
+        if (!userId) {
+            return NextResponse.json({ error: 'User ID not found' }, { status: 401 });
+        }
+
         const { status } = await request.json();
-        const { id } = await params;
+        const { id } = params;
         const todoId = parseInt(id, 10);
 
         if (isNaN(todoId)) {
@@ -31,10 +35,25 @@ export async function PATCH(
             );
         }
 
+        // First check if the todo belongs to the user
+        const todo = await prismaClient.todo.findFirst({
+            where: {
+                id: todoId,
+                userId: parseInt(userId)
+            }
+        });
+
+        if (!todo) {
+            return NextResponse.json(
+                { error: "Todo not found or unauthorized" },
+                { status: 404 }
+            );
+        }
+
         const updatedTodo = await prismaClient.todo.update({
             where: {
                 id: todoId,
-                userId: userId
+                userId: parseInt(userId)
             },
             data: {
                 todo_status: status
@@ -46,7 +65,7 @@ export async function PATCH(
             todo: updatedTodo
         });
 
-    } catch {
+    } catch (e) {
         return NextResponse.json(
             { error: "Failed to update todo" },
             { status: 500 }
