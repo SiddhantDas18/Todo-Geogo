@@ -4,7 +4,7 @@ import prismaClient from "@/app/lib/db";
 
 export async function DELETE(
     req: NextRequest,
-    context: { params: { id: string } }
+    context: { params: { id: string } }  
 ) {
     try {
         const authResponse = await Middleware(req);
@@ -13,14 +13,22 @@ export async function DELETE(
             return authResponse;
         }
 
-        const { userId } = await authResponse.json();
-
         const {id} = await context.params
-        const todoId = parseInt(id,10)
+        const { userId } = await authResponse.json();
+        const todoId = parseInt(id,10);  
+
+
+        if (isNaN(todoId)) {
+            return NextResponse.json(
+                { error: "Invalid todo ID" },
+                { status: 400 }
+            );
+        }
+
         await prismaClient.todo.delete({
             where: {
                 id: todoId,
-                userId: userId 
+                userId: userId
             }
         });
 
@@ -29,10 +37,10 @@ export async function DELETE(
             message: "Todo deleted successfully"
         });
 
-    } catch {
+    } catch (error) {
         return NextResponse.json(
             { error: "Failed to delete todo" },
             { status: 500 }
         );
     }
-} 
+}
