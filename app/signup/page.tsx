@@ -21,7 +21,7 @@ export default function SignUp(){
                     alert(response.data.message);
                     router.push("/signin");
                 }
-            } catch (error) {
+            } catch {
                 alert("An error occurred during sign up");
             }
         }

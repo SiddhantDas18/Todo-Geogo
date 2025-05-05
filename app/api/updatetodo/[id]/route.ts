@@ -31,9 +31,9 @@ export async function PATCH(
             todo: updatedTodo
         });
 
-    } catch (error) {
+    } catch  {
         return NextResponse.json(
-            { error: `(e as Error)` },
+            { error: "Failed to update todo" },
             { status: 500 }
         );
     }

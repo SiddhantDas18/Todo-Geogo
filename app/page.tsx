@@ -33,7 +33,7 @@ export default function Home() {
         setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
     };
 
-    const handleAddTodo = (newTodo: any) => {
+    const handleAddTodo = (newTodo: Todo) => {
         setTodos(prevTodos => [...prevTodos, newTodo]);
     };
 
