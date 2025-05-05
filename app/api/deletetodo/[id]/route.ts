@@ -2,64 +2,78 @@ import { NextRequest, NextResponse } from "next/server";
 import Middleware from "@/middleware/route";
 import prismaClient from "@/app/lib/db";
 
+// Helper function to create error response
+const createErrorResponse = (message: string, status: number): NextResponse => {
+  return NextResponse.json(
+    { success: false, error: message },
+    { status }
+  );
+};
+
+// Helper function to create success response
+const createSuccessResponse = (message: string): NextResponse => {
+  return NextResponse.json(
+    { success: true, message },
+    { status: 200 }
+  );
+};
 
 export async function DELETE(
-    request: NextRequest,
-    { params }: { params: { id: string } }
+  request: NextRequest
 ) {
-    try {
-        const authResponse = await Middleware(request);
-
-        if (authResponse.status === 401) {
-            return authResponse;
-        }
-
-        const userId = authResponse.headers.get('x-user-id');
-        if (!userId) {
-            return NextResponse.json({ error: 'User ID not found' }, { status: 401 });
-        }
-
-
-        const { id } = await params;
-        const todoId = parseInt(id, 10);
-
-        if (isNaN(todoId)) {
-            return NextResponse.json(
-                { error: "Invalid todo ID" },
-                { status: 400 }
-            );
-        }
-
-        const todo = await prismaClient.todo.findFirst({
-            where: {
-                id: todoId,
-                userId: parseInt(userId)
-            }
-        });
-
-        if (!todo) {
-            return NextResponse.json(
-                { error: "Todo not found or unauthorized" },
-                { status: 404 }
-            );
-        }
-
-        await prismaClient.todo.delete({
-            where: {
-                id: todoId,
-                userId: parseInt(userId)
-            }
-        });
-
-        return NextResponse.json({
-            success: true,
-            message: "Todo deleted successfully"
-        });
-
-    } catch {
-        return NextResponse.json(
-            { error: "Failed to delete todo" },
-            { status: 500 }
-        );
+  try {
+    // Get todo ID from URL
+    const id = request.nextUrl.pathname.split('/').pop();
+    if (!id) {
+      return createErrorResponse("Todo ID is required", 400);
     }
+
+    // Validate authentication
+    const authResponse = await Middleware(request);
+    if (authResponse.status === 401) {
+      return authResponse;
+    }
+
+    // Get and validate user ID
+    const { userId } = await authResponse.json();
+    if (!userId) {
+      return createErrorResponse("User ID not found", 401);
+    }
+
+    // Validate todo ID
+    const todoId = Number(id);
+    if (isNaN(todoId)) {
+      return createErrorResponse("Invalid todo ID format", 400);
+    }
+
+    // Check if todo exists and belongs to user
+    const existingTodo = await prismaClient.todo.findFirst({
+      where: {
+        id: todoId,
+        userId: Number(userId),
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!existingTodo) {
+      return createErrorResponse("Todo not found or unauthorized", 404);
+    }
+
+    // Delete the todo
+    await prismaClient.todo.delete({
+      where: {
+        id: todoId,
+      },
+    });
+
+    return createSuccessResponse("Todo deleted successfully");
+  } catch (error) {
+    console.error("Delete todo error:", error);
+    return createErrorResponse(
+      "An unexpected error occurred while deleting the todo",
+      500
+    );
+  }
 }

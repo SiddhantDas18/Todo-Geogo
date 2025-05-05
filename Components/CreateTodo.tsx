@@ -7,17 +7,25 @@ interface TodoFormData {
     status: string;
 }
 
-interface TodoProps{
-    isOpen:boolean,
-    onClose:()=>void,
-    onAddTodo:(todo: any) => void,
-    name:String
+
+interface Todo {
+    id: number;
+    todo_title: string;
+    todo_status: string;
+    userId: number;
 }
 
-export default function CreateTodo({ isOpen, onClose, onAddTodo, name }: TodoProps) {
+interface TodoProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onAddTodo: (todo: Todo) => void;  
+    name?: string;  
+}
+
+export default function CreateTodo({ isOpen, onClose, onAddTodo }: TodoProps) {  // Remove unused 'name' prop
     const [formData, setFormData] = useState<TodoFormData>({
         title: '',
-        status: 'false' // default status
+        status: 'false' 
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -40,7 +48,8 @@ export default function CreateTodo({ isOpen, onClose, onAddTodo, name }: TodoPro
             onAddTodo(data.todo);
             setFormData({ title: '', status: 'false' });
             onClose();
-        } catch (error) {
+        } catch (error: unknown) {  
+            console.error('Error creating todo:', error);  
             alert("Error creating todo");
         }
     };

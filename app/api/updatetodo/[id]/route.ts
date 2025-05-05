@@ -2,17 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import Middleware from "@/middleware/route";
 import prismaClient from "@/app/lib/db";
 
-type Props = {
-    params: {
-        id: string;
-    };
-};
-
 export async function PATCH(
-    request: NextRequest,
-    { params }: Props
+    request: NextRequest
 ) {
     try {
+        // Get todo ID from URL
+        const id = request.nextUrl.pathname.split('/').pop();
+        if (!id) {
+            return NextResponse.json({ error: 'Todo ID is required' }, { status: 400 });
+        }
+
         const authResponse = await Middleware(request);
 
         if (authResponse.status === 401) {
@@ -25,7 +24,6 @@ export async function PATCH(
         }
 
         const { status } = await request.json();
-        const { id } = params;
         const todoId = parseInt(id, 10);
 
         if (isNaN(todoId)) {
@@ -65,7 +63,8 @@ export async function PATCH(
             todo: updatedTodo
         });
 
-    } catch {
+    } catch (error) {
+        console.error('Update todo error:', error);
         return NextResponse.json(
             { error: "Failed to update todo" },
             { status: 500 }

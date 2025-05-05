@@ -14,7 +14,7 @@ interface InputProps {
     onUpdateTitle: (id: number, newTitle: string, newStatus: string) => void
 }
 
-export default function Todos({ todoTitle, todoStatus, todoId, userid, onStatusChange, onDelete, onUpdateTitle }: InputProps) {
+export default function Todos({ todoTitle, todoStatus, todoId, onDelete, onUpdateTitle }: InputProps) {
     const [isDeleting, setIsDeleting] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
