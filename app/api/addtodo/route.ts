@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prismaClient from "@/app/lib/db";
 import Middleware from "@/middleware/route";
+//nothing just checking if the route is working, cause it is not working
 
 export async function POST(req: NextRequest) {
     try {
