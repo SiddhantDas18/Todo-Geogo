@@ -43,6 +43,18 @@ export default function Home() {
         );
     };
 
+    const handleDrop = async (e: React.DragEvent, targetStatus: string) => {
+        e.preventDefault();
+        try {
+            const todoData = JSON.parse(e.dataTransfer.getData('text/plain'));
+            if (todoData.status !== targetStatus) {
+                await handleStatusChange(todoData.id, targetStatus);
+            }
+        } catch (error) {
+            console.error('Error handling drop:', error);
+        }
+    };
+
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -108,8 +120,12 @@ export default function Home() {
                 </motion.div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* section for the todo which are not started*/}
-                    <div className="bg-white rounded-lg shadow-md p-4">
+                    {/* Need to be done */}
+                    <div 
+                        className="bg-white rounded-lg shadow-md p-4"
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => handleDrop(e, "false")}
+                    >
                         <h2 className="text-xl font-semibold text-gray-800 mb-4">Need to be done</h2>
                         <div className="space-y-2">
                             {notStartedTodos.map((todo) => (
@@ -127,8 +143,12 @@ export default function Home() {
                         </div>
                     </div>
 
-                    {/* Has started */}
-                    <div className="bg-white rounded-lg shadow-md p-4">
+                    {/* Doing */}
+                    <div 
+                        className="bg-white rounded-lg shadow-md p-4"
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => handleDrop(e, "pending")}
+                    >
                         <h2 className="text-xl font-semibold text-gray-800 mb-4">Doing</h2>
                         <div className="space-y-2">
                             {pendingTodos.map((todo) => (
@@ -147,7 +167,11 @@ export default function Home() {
                     </div>
 
                     {/* Done */}
-                    <div className="bg-white rounded-lg shadow-md p-4">
+                    <div 
+                        className="bg-white rounded-lg shadow-md p-4"
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => handleDrop(e, "true")}
+                    >
                         <h2 className="text-xl font-semibold text-gray-800 mb-4">Done</h2>
                         <div className="space-y-2">
                             {completedTodos.map((todo) => (

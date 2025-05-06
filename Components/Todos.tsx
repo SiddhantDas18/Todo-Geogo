@@ -18,6 +18,14 @@ export default function Todos({ todoTitle, todoStatus, todoId, onDelete, onUpdat
     const [isDeleting, setIsDeleting] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
+    const handleDragStart = (e: React.DragEvent) => {
+        e.dataTransfer.setData('text/plain', JSON.stringify({
+            id: todoId,
+            title: todoTitle,
+            status: todoStatus
+        }));
+    };
+
     async function handleDelete() {
         if (isDeleting) return;
         
@@ -40,11 +48,11 @@ export default function Todos({ todoTitle, todoStatus, todoId, onDelete, onUpdat
 
     return (
         <>
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+            <div
+                draggable
+                onDragStart={handleDragStart}
                 className={`p-4 m-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 
-                          w-full ${
+                          w-full cursor-move ${
                             todoStatus === "true" ? 'bg-green-50' : 
                             todoStatus === "pending" ? 'bg-yellow-50' : 'bg-white'
                           }`}
@@ -99,7 +107,7 @@ export default function Todos({ todoTitle, todoStatus, todoId, onDelete, onUpdat
                         </button>
                     </div>
                 </div>
-            </motion.div>
+            </div>
 
             <EditTodoModal
                 isOpen={isEditModalOpen}
