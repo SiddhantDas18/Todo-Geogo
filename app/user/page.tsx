@@ -58,7 +58,7 @@ export default function UserSettings() {
                 setNewPassword('');
                 setConfirmPassword('');
             }
-        } catch (error) {
+        } catch  {
             setMessage('Failed to change password. Please try again.');
         } finally {
             setIsLoading(false);

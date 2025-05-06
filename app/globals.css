@@ -5,12 +5,22 @@
   --foreground: #171717;
 } */
 
+@layer base {
+  :root {
+    --font-sans: var(--font-space-grotesk);
+  }
+
+  html {
+    font-family: var(--font-sans), system-ui, sans-serif;
+  }
+}
+
 @layer components{
   .butn{
-    @apply bg-black text-white px-1 py-1 rounded-md cursor-pointer
+    @apply bg-black text-white px-1 py-1 rounded-md cursor-pointer font-sans
   }
   .inpt-styling{
-    @apply border-black border-1 rounded-md py-2 px-2
+    @apply border-black border-1 rounded-md py-2 px-2 font-sans
   }
 }
 
@@ -24,7 +34,7 @@
 } */
 
 body {
+  font-family: var(--font-sans), system-ui, sans-serif;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }

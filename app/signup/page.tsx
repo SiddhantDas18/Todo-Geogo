@@ -2,13 +2,6 @@
 import { useState } from "react"
 import axios from "axios"
 import { useRouter } from "next/navigation"
-import JWST from "jsonwebtoken"
-
-const secret = process.env.NEXT_PUBLIC_SECRET as string;
-
-if (!secret) {
-    throw new Error('JWT Secret is not defined in environment variables');
-}
 
 export default function SignUp(){
     const router = useRouter();
@@ -27,14 +20,9 @@ export default function SignUp(){
                     username,
                     password
                 });
-                if (response.data.user) {
-                    // Generate token
-                    const token = JWST.sign({
-                        id: response.data.user.id
-                    }, secret);
-
+                if (response.data.token) {
                     // Store token
-                    localStorage.setItem('token', token);
+                    localStorage.setItem('token', response.data.token);
                     
                     // Dispatch auth change event
                     window.dispatchEvent(new Event('authStateChange'));

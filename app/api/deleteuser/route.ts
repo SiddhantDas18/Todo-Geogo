@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import bcrypt from 'bcrypt';
 import prismaClient from "@/app/lib/db";
 import JWST from "jsonwebtoken";
+import Middleware from "@/middleware/route";
 
 const secret = process.env.SECRET as string;
 
@@ -11,13 +12,16 @@ if (!secret) {
 
 export async function POST(req: NextRequest) {
     try {
-        const token = req.headers.get('Authorization')?.split(' ')[1];
-        if (!token) {
-            return NextResponse.json({ error: 'No token provided' }, { status: 401 });
+        const authResponse = await Middleware(req);
+
+        if (authResponse.status === 401) {
+            return authResponse;
         }
 
-        const decoded = JWST.verify(token, secret) as { id: string };
-        const userId = decoded.id;
+        const userId = authResponse.headers.get('x-user-id');
+        if (!userId) {
+            return NextResponse.json({ error: 'User ID not found' }, { status: 401 });
+        }
 
         const { password } = await req.json();
 

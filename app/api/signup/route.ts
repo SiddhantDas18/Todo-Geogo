@@ -1,32 +1,55 @@
 import { NextResponse, NextRequest } from "next/server";
 import bcrypt from 'bcrypt'
 import prismaClient from "@/app/lib/db";
+import JWST from "jsonwebtoken";
 
+const secret = process.env.SECRET as string;
+
+if (!secret) {
+    throw new Error('JWT Secret is not defined in environment variables');
+}
 
 export async function POST(req: NextRequest) {
     try {
-
-        const response = await req.json()
+        const data = await req.json()
         
-        const hashedPaasword = await bcrypt.hash(response.password,10)
+        // Check if user already exists
+        const existingUser = await prismaClient.user.findUnique({
+            where: {
+                username: data.username
+            }
+        });
 
+        if (existingUser) {
+            return NextResponse.json({
+                message: "Username already exists"
+            }, { status: 400 });
+        }
 
-        await prismaClient.user.create({
-            data:{
-                username:response.username,
-                password:hashedPaasword
+        const hashedPassword = await bcrypt.hash(data.password, 10)
+
+        // Create user
+        const user = await prismaClient.user.create({
+            data: {
+                username: data.username,
+                password: hashedPassword
             }
         })
 
-        return NextResponse.json({
-            message:"You have been Signed Up"
-        })
+        // Generate token
+        const token = JWST.sign({
+            id: user.id
+        }, secret);
 
-    } catch (e) {
         return NextResponse.json({
-            msg: (e as Error).toString(),
-            msg2:"What is goinf on"
-        })
+            message: "User created successfully",
+            token: token
+        });
+
+    } catch (error) {
+        console.error('Error in signup:', error);
+        return NextResponse.json({
+            message: "An error occurred during sign up"
+        }, { status: 500 });
     }
-
 }

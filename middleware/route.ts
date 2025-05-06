@@ -17,7 +17,6 @@ export default function Middleware(req: NextRequest) {
     try {
         const decoded = JWST.verify(token, secret) as { id: string };
         
-        // Create a new response with the user ID in the headers
         const response = NextResponse.next();
         response.headers.set('x-user-id', decoded.id);
         

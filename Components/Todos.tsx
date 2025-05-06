@@ -1,5 +1,4 @@
 'use client'
-import { motion } from 'framer-motion'
 import { useState } from 'react'
 import axios from 'axios'
 import EditTodoModal from './EditTodoModal'
