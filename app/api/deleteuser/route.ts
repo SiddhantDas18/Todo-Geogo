@@ -1,7 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import bcrypt from 'bcrypt';
 import prismaClient from "@/app/lib/db";
-import JWST from "jsonwebtoken";
 import Middleware from "@/middleware/route";
 
 const secret = process.env.SECRET as string;
