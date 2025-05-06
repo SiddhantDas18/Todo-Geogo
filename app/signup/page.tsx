@@ -7,22 +7,29 @@ export default function SignUp(){
     const router = useRouter();
     const [username,setUsername]=useState("")
     const [password,setPassword]=useState("")
+    const [isLoading, setIsLoading] = useState(false)
+    const [message, setMessage] = useState("")
 
     async function getData(){
         if(username =="" || password==""){
             alert("Invalid Input")
         }else{
+            setIsLoading(true)
             try {
                 const response = await axios.post("/api/signup",{
                     username,
                     password
                 });
                 if (response.data.message) {
-                    alert(response.data.message);
-                    router.push("/signin");
+                    setMessage("User created successfully! Redirecting...")
+                    setTimeout(() => {
+                        router.push("/signin");
+                    }, 1500);
                 }
             } catch {
                 alert("An error occurred during sign up");
+            } finally {
+                setIsLoading(false)
             }
         }
     }
@@ -39,8 +46,11 @@ export default function SignUp(){
                 }}/>
             </div>
 
-            <div className="flex justify-center">
-                <button className="butn" onClick={getData}>SignUp</button>
+            <div className="flex flex-col items-center gap-2">
+                {message && <p className="text-green-600">{message}</p>}
+                <button className="butn" onClick={getData} disabled={isLoading}>
+                    {isLoading ? 'Creating account...' : 'SignUp'}
+                </button>
             </div>
         </div>
     </div>

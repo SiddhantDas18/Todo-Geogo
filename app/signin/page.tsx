@@ -7,11 +7,13 @@ export default function SignIn() {
     const router = useRouter();
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
+    const [isLoading, setIsLoading] = useState(false)
 
     async function getData() {
         if (username == "" || password == "") {
             alert("Invalid Input")
         } else {
+            setIsLoading(true)
             try {
                 const response = await axios.post("/api/signin", {
                     username,
@@ -29,6 +31,8 @@ export default function SignIn() {
                 }
             } catch (error) {
                 alert(error as Error)
+            } finally {
+                setIsLoading(false)
             }
         }
     }
@@ -46,7 +50,9 @@ export default function SignIn() {
             </div>
 
             <div className="flex justify-center">
-                <button className="butn" onClick={getData}>SignIn</button>
+                <button className="butn" onClick={getData} disabled={isLoading}>
+                    {isLoading ? 'Signing in...' : 'SignIn'}
+                </button>
             </div>
         </div>
     </div>
