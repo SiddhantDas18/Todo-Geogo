@@ -83,7 +83,7 @@ export default function UserSettings() {
                 window.dispatchEvent(new Event('authStateChange'));
                 router.push('/signin');
             }
-        } catch (error) {
+        } catch {
             setMessage('Failed to delete account. Please check your password.');
         } finally {
             setIsDeleteLoading(false);
