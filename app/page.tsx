@@ -48,10 +48,26 @@ export default function Home() {
         try {
             const todoData = JSON.parse(e.dataTransfer.getData('text/plain'));
             if (todoData.status !== targetStatus) {
-                await handleStatusChange(todoData.id, targetStatus);
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+
+                const response = await axios.patch(`/api/updatetodo/${todoData.id}`, {
+                    status: targetStatus
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.data.success) {
+                    handleStatusChange(todoData.id, targetStatus);
+                }
             }
         } catch (error) {
             console.error('Error handling drop:', error);
+            alert('Failed to update todo status. Please try again.');
         }
     };
 
