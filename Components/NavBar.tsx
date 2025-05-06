@@ -14,14 +14,6 @@ export default function Navbar() {
         setAuthentication(!!token);
     };
 
-    function Logout() {
-        localStorage.removeItem("token");
-        setAuthentication(false);
-        // Dispatch event for other components
-        window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
-        window.location.href = "/";
-    }
-
     useEffect(() => {
         // Initial check
         updateAuthState();
@@ -40,7 +32,7 @@ export default function Navbar() {
         };
     }, []);
 
-    return <div className="sticky top-0 border border-black py-3 rounded-md">
+    return <div className="sticky top-0 border border-black py-3 backdrop-blur-sm rounded-md">
         <div className="flex justify-between px-2 items-center">
             <div className="text-2xl md:text-3xl md:font-bold">
                 <Link href="/">Todo</Link>
@@ -57,9 +49,22 @@ export default function Navbar() {
                         </div>
                     </>
                 ) : (
-                    <div>
-                        <button className="butn md:text-2xl" onClick={Logout}>Logout</button>
-                    </div>
+                    <Link href="/user" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-6 w-6"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                            />
+                        </svg>
+                    </Link>
                 )}
             </div>
         </div>

@@ -2,6 +2,13 @@
 import { useState } from "react"
 import axios from "axios"
 import { useRouter } from "next/navigation"
+import JWST from "jsonwebtoken"
+
+const secret = process.env.NEXT_PUBLIC_SECRET as string;
+
+if (!secret) {
+    throw new Error('JWT Secret is not defined in environment variables');
+}
 
 export default function SignUp(){
     const router = useRouter();
@@ -20,14 +27,29 @@ export default function SignUp(){
                     username,
                     password
                 });
-                if (response.data.message) {
-                    setMessage("User created successfully! Redirecting...")
+                if (response.data.user) {
+                    // Generate token
+                    const token = JWST.sign({
+                        id: response.data.user.id
+                    }, secret);
+
+                    // Store token
+                    localStorage.setItem('token', token);
+                    
+                    // Dispatch auth change event
+                    window.dispatchEvent(new Event('authStateChange'));
+                    
+                    setMessage("Account created successfully! Redirecting...")
                     setTimeout(() => {
-                        router.push("/signin");
+                        router.push("/");
                     }, 1500);
                 }
-            } catch {
-                alert("An error occurred during sign up");
+            } catch (error) {
+                if (axios.isAxiosError(error) && error.response?.data?.message) {
+                    setMessage(error.response.data.message);
+                } else {
+                    setMessage("An error occurred during sign up");
+                }
             } finally {
                 setIsLoading(false)
             }
@@ -47,7 +69,11 @@ export default function SignUp(){
             </div>
 
             <div className="flex flex-col items-center gap-2">
-                {message && <p className="text-green-600">{message}</p>}
+                {message && (
+                    <p className={`text-sm ${message.includes('successfully') ? 'text-green-600' : 'text-red-600'}`}>
+                        {message}
+                    </p>
+                )}
                 <button className="butn" onClick={getData} disabled={isLoading}>
                     {isLoading ? 'Creating account...' : 'SignUp'}
                 </button>
