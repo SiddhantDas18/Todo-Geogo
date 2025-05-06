@@ -82,7 +82,14 @@ export default function Home() {
             }
         };
 
+
         fetchTodos();
+
+
+        const intervalId = setInterval(fetchTodos, 10000); 
+
+
+        return () => clearInterval(intervalId);
     }, [router]);
 
     if (isLoading) {
